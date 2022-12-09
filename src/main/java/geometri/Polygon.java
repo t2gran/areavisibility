@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
-public class Polygon<S extends V2, T extends Line<S>> {
+public class Polygon<S extends Point, T extends Line<S>> {
     private final List<T> lines;
 
     public Polygon(List<T> lines) {

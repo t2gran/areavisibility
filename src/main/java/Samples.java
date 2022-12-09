@@ -2,7 +2,7 @@ import geometri.Area;
 
 import java.util.List;
 
-import static geometri.V2.v2;
+import static geometri.Point.v2;
 
 
 public class Samples {

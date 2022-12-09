@@ -32,7 +32,7 @@ public class Edge extends Line<Node> {
         return Objects.hash(a, b);
     }
 
-    static Polygon<Node, Edge> createPolygon(List<V2> points) {
+    static Polygon<Node, Edge> createPolygon(List<Point> points) {
         List<Edge> edges = new ArrayList<>();
         List<Node> nodes = points.stream()
                 .map(p -> new Node(p, true))

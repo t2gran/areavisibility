@@ -2,7 +2,7 @@ package geometri;
 
 import java.util.Comparator;
 
-public class Line<T extends V2> {
+public class Line<T extends Point> {
     public final T a;
     public final T b;
     public final double lengthSqrt;
@@ -88,7 +88,7 @@ public class Line<T extends V2> {
         return Angle.notBetween(alfa, a.alfaInv(), b.alfa());
     }
 
-    public static <S extends V2> Comparator<Line<S>> compareLength() {
+    public static <S extends Point> Comparator<Line<S>> compareLength() {
         return (o1, o2) -> (int)Math.round((o1.lengthSqrt - o2.lengthSqrt) * 100d);
     }
 

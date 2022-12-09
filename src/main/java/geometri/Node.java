@@ -3,11 +3,11 @@ package geometri;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class Node extends V2 {
+public class Node extends Point {
     ArrayList<Edge> edges = new ArrayList<>();
     final boolean fixed;
 
-    Node(V2 v, boolean fixed) {
+    Node(Point v, boolean fixed) {
         super(v.x, v.y);
         this.fixed = fixed;
     }

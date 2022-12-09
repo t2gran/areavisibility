@@ -4,8 +4,8 @@ import geometri.Area;
 import geometri.Edge;
 import geometri.Line;
 import geometri.Node;
+import geometri.Point;
 import geometri.Polygon;
-import geometri.V2;
 
 import java.awt.*;
 import java.util.List;
@@ -50,7 +50,7 @@ public class Canvas2D {
         return CURRENT_LINE_COLORS.length;
     }
 
-    private void drawPoint(Graphics g, V2 point) {
+    private void drawPoint(Graphics g, Point point) {
         g.fillOval(x(point)-POINT_RADIUS, y(point)-POINT_RADIUS, POINT_SIZE, POINT_SIZE);
     }
 
@@ -58,11 +58,11 @@ public class Canvas2D {
         drawLine(g, line.a, line.b);
     }
 
-    private void drawLine(Graphics g, V2 a, V2 b) {
+    private void drawLine(Graphics g, Point a, Point b) {
         g.drawLine(x(a), y(a), x(b), y(b));
     }
 
-    public void draw(Graphics g, Area area, List<Line<V2>> currentLines) {
+    public void draw(Graphics g, Area area, List<Line<Point>> currentLines) {
         drawAreaBackground(g, area);
 
         for (Edge edge : area.edges()) {
@@ -86,7 +86,7 @@ public class Canvas2D {
         area.holes().forEach(it -> fillPolygon(g, it));
     }
 
-    private void drawCurrentLines(Graphics g, List<Line<V2>> currentLines) {
+    private void drawCurrentLines(Graphics g, List<Line<Point>> currentLines) {
         if(currentLines == null) { return; }
         for (int  i=0; i< currentLines.size(); ++i) {
             var line = currentLines.get(i);
@@ -101,11 +101,11 @@ public class Canvas2D {
         g.fillPolygon(polygon.coordinates(this::x), polygon.coordinates(this::y), polygon.size());
     }
 
-    private int x(V2 v) {
+    private int x(Point v) {
         return x0 + (int)(v.x * scaleFactor);
     }
 
-    private int y(V2 v) {
+    private int y(Point v) {
         return y1 - (int)(v.y * scaleFactor);
     }
 
@@ -118,10 +118,10 @@ public class Canvas2D {
     }
 
 
-    public void setBoundingBox(List<? extends V2> points) {
+    public void setBoundingBox(List<? extends Point> points) {
         final double[] max = new double[2];
 
-        for (V2 p : points) {
+        for (Point p : points) {
             max[0] = Math.max(p.x, max[0]);
             max[1] = Math.max(p.y, max[1]);
         }

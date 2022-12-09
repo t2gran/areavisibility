@@ -2,52 +2,52 @@ package geometri;
 
 import java.util.Objects;
 
-public class V2 {
+public class Point {
     public final double x;
     public final double y;
 
-    protected V2(double x, double y) {
+    protected Point(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
-    public static V2 v2(double x, double y) {
-        return new V2(x,y);
+    public static Point v2(double x, double y) {
+        return new Point(x,y);
     }
 
-    public V2 plus(V2 l) {
+    public Point plus(Point l) {
         return v2(x + l.x, y + l.y);
     }
 
-    public V2 transform(double c) {
+    public Point transform(double c) {
         return v2(x + c, y + c);
     }
 
-    public V2 minus() {
+    public Point minus() {
         return v2(-x, -y);
     }
 
-    public V2 minus(V2 l) {
+    public Point minus(Point l) {
         return v2(x - l.x, y - l.y);
     }
 
-    public V2 minus(double c) {
+    public Point minus(double c) {
         return v2(x - c, y - c);
     }
 
-    public V2 dot(V2 l) {
+    public Point dot(Point l) {
         return v2(x * l.x, y * l.y);
     }
 
-    public V2 scale(double c) {
+    public Point scale(double c) {
         return v2(x * c, y * c);
     }
 
-    public V2 div(V2 l) {
+    public Point div(Point l) {
         return v2(x / l.x, y / l.y);
     }
 
-    public V2 div(double c) {
+    public Point div(double c) {
         return v2(x / c, y / c);
     }
 
@@ -60,9 +60,9 @@ public class V2 {
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
-        if (!(o instanceof V2)) { return false; }
-        final V2 v2 = (V2) o;
-        return Double.compare(v2.x, x) == 0 && Double.compare(v2.y, y) == 0;
+        if (!(o instanceof Point)) { return false; }
+        final Point point = (Point) o;
+        return Double.compare(point.x, x) == 0 && Double.compare(point.y, y) == 0;
     }
 
     @Override

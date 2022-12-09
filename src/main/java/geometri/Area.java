@@ -13,7 +13,7 @@ public class Area {
 
 
     @SuppressWarnings("unchecked")
-    public Area(List<V2> boarder, List<V2> ... holes) {
+    public Area(List<Point> boarder, List<Point> ... holes) {
         this.boarder = Edge.createPolygon(boarder);
         this.holes = Arrays.stream(holes)
                 .map(Edge::createPolygon)

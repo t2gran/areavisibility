@@ -2,7 +2,7 @@ package geometri;
 
 import org.junit.jupiter.api.Test;
 
-import static geometri.V2.v2;
+import static geometri.Point.v2;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
