@@ -32,8 +32,8 @@ public class Area {
 
     public List<Edge> edges() { return edges; }
 
-    public boolean intersectEdges(Line<?> line) {
-        return edges.stream().anyMatch(e -> line.intersect(e));
+    public boolean intersectEdges(Edge edge) {
+        return edges.stream().anyMatch(e -> edge.intersect(e));
     }
 
     public void addVisibilityEdge(Node a, Node b) {
@@ -42,7 +42,7 @@ public class Area {
 
     private void addPolygonToEdgesAndNodes(Polygon<Node, Edge> polygon) {
         for (Edge edge : polygon.boarderLines()) {
-            this.nodes.add(edge.a);
+            this.nodes.add(edge.from());
             this.edges.add(edge);
         }
     }

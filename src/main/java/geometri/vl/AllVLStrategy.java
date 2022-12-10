@@ -2,8 +2,8 @@ package geometri.vl;
 
 import geometri.AddVLStrategy;
 import geometri.Area;
+import geometri.Edge;
 import geometri.Line;
-import geometri.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,15 +13,15 @@ public class AllVLStrategy implements AddVLStrategy {
     @Override
     public void addVisibilityLines(
             Area area,
-            List<Line<Node>> visibilityLines,
-            Consumer<Line<Node>> step
+            List<Edge> visibilityLines,
+            Consumer<Edge> step
     ) {
-        List<Line<Node>> acceptedLines = new ArrayList<>();
+        List<Edge> acceptedLines = new ArrayList<>();
         visibilityLines.sort(Line.compareLength());
 
-        for (Line<Node> it : visibilityLines) {
+        for (var it : visibilityLines) {
             step.accept(it);
-            area.addVisibilityEdge(it.a, it.b);
+            area.addVisibilityEdge(it.from(), it.to());
         }
     }
 }

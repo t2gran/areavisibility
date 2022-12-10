@@ -5,18 +5,26 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class Edge extends Line<Node> {
+public class Edge extends Line {
     boolean fixed;
 
-    Edge(Node a, Node b, boolean fixed) {
-        super(a, b);
+    Edge(Node from, Node to, boolean fixed) {
+        super(from, to);
         this.fixed = fixed;
-        a.connect(this);
-        b.connect(this);
+        from.connect(this);
+        to.connect(this);
     }
 
     public boolean fixed() {
         return fixed;
+    }
+
+    public Node from() {
+        return (Node)a;
+    }
+
+    public Node to() {
+        return (Node)b;
     }
 
     @Override

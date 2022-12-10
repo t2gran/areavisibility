@@ -4,19 +4,21 @@ import java.util.List;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
-public class Polygon<S extends Point, T extends Line<S>> {
+public class Polygon<S extends Point, T extends Line> {
     private final List<T> lines;
 
     public Polygon(List<T> lines) {
         this.lines = lines;
     }
 
+    @SuppressWarnings("unchecked")
     public int[] coordinates(ToIntFunction<S> map) {
-        return lines.stream().mapToInt(l ->  map.applyAsInt(l.a)).toArray();
+        return lines.stream().mapToInt(l ->  map.applyAsInt((S)l.a)).toArray();
     }
 
+    @SuppressWarnings("unchecked")
     public List<S> points() {
-        return lines.stream().map(l -> l.a).collect(Collectors.toList());
+        return lines.stream().map(l -> (S)l.a).collect(Collectors.toList());
     }
 
     public List<T> boarderLines() {

@@ -5,5 +5,5 @@ import java.util.function.Consumer;
 
 public interface AddVLStrategy {
 
-    void addVisibilityLines(Area area, List<Line<Node>> visibilityLines, Consumer<Line<Node>> step);
+    void addVisibilityLines(Area area, List<Edge> visibilityLines, Consumer<Edge> step);
 }

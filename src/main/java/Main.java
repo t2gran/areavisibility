@@ -1,6 +1,5 @@
 import geometri.Area;
 import geometri.Line;
-import geometri.Point;
 import geometri.VisibilityLines;
 import geometri.vl.DeluneyVLStrategy;
 import view.Canvas2D;
@@ -24,7 +23,7 @@ public class Main extends JPanel {
     private final Area sample;
     private final String id;
     private final VisibilityLines vl;
-    private final List<Line<Point>> currentLines = new ArrayList<>();
+    private final List<Line> currentLines = new ArrayList<>();
     private final Canvas2D canvas = new Canvas2D();
     private CtrlState ctrl = CtrlState.PLAY;
     private Thread mainThread;

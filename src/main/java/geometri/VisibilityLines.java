@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 public class VisibilityLines {
     private final Area area;
-    private final List<Line<Node>> visibilityLines = new ArrayList<>();
+    private final List<Edge> visibilityLines = new ArrayList<>();
     private final AddVLStrategy addVLStrategy;
 
 
@@ -20,11 +20,11 @@ public class VisibilityLines {
         return area;
     }
 
-    List<Line<Node>> visibilityLines() {
+    List<Edge> visibilityLines() {
         return visibilityLines;
     }
 
-    public void generate(Consumer<Line<Node>> step) {
+    public void generate(Consumer<Edge> step) {
         Polygon<Node, Edge> main = area.boarder();
         generateVLines(main, step, Bound.INSIDE);
 
@@ -39,10 +39,10 @@ public class VisibilityLines {
         addVLStrategy.addVisibilityLines(area, visibilityLines, step);
     }
 
-    private void generateVLinesP2P(Polygon<Node, Edge> p1, Polygon<Node, Edge> p2, Consumer<Line<Node>> step) {
+    private void generateVLinesP2P(Polygon<Node, Edge> p1, Polygon<Node, Edge> p2, Consumer<Edge> step) {
         for (Node v : p1.points()) {
             for (Node u : p2.points()) {
-                Line<Node> line = new Line<>(u, v);
+                var line = new Edge(u, v, false);
                 step.accept(line);
                 if(!area.intersectEdges(line)) {
                     add(line);
@@ -53,7 +53,7 @@ public class VisibilityLines {
 
     private void generateVLines(
             Polygon<Node, Edge> polygon,
-            Consumer<Line<Node>> step,
+            Consumer<Edge> step,
             Bound bound
     ) {
         var lines = polygon.boarderLines();
@@ -66,7 +66,7 @@ public class VisibilityLines {
             c = lines.get(i+1);
             for (int j = i + 2; j < jSize; ++j) {
                 d = lines.get(j);
-                var line = new Line<>(a.b, c.b);
+                var line = new Edge(a.to(), c.to(), false);
                 step.accept(line);
 
                 if (acceptLine(line, a, b, c, d, bound)) {
@@ -80,11 +80,11 @@ public class VisibilityLines {
     }
 
     private boolean acceptLine(
-            Line<?> line,
-            Line<?> a,
-            Line<?> b,
-            Line<?> c,
-            Line<?> d,
+            Edge line,
+            Edge a,
+            Edge b,
+            Edge c,
+            Edge d,
             Bound bound
             ) {
         if(bound == Bound.INSIDE) {
@@ -96,7 +96,7 @@ public class VisibilityLines {
         return !area.intersectEdges(line);
     }
 
-    private void add(Line<Node> l) {
+    private void add(Edge l) {
         visibilityLines.add(l);
     }
 }

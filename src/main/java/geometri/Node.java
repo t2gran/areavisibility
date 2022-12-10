@@ -28,9 +28,8 @@ public class Node extends Point {
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
-        if (!(o instanceof Node)) { return false; }
-        final Node v2 = (Node) o;
-        return Double.compare(v2.x, x) == 0 && Double.compare(v2.y, y) == 0;
+        if (!(o instanceof Node oNode)) { return false; }
+        return Double.compare(oNode.x, x) == 0 && Double.compare(oNode.y, y) == 0;
     }
 
     @Override

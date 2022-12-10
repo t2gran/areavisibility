@@ -8,7 +8,9 @@ import geometri.Point;
 import geometri.Polygon;
 
 import java.awt.*;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Canvas2D {
 
@@ -54,7 +56,7 @@ public class Canvas2D {
         g.fillOval(x(point)-POINT_RADIUS, y(point)-POINT_RADIUS, POINT_SIZE, POINT_SIZE);
     }
 
-    public void drawLine(Graphics g, Line<?> line) {
+    public void drawLine(Graphics g, Line line) {
         drawLine(g, line.a, line.b);
     }
 
@@ -62,7 +64,7 @@ public class Canvas2D {
         g.drawLine(x(a), y(a), x(b), y(b));
     }
 
-    public void draw(Graphics g, Area area, List<Line<Point>> currentLines) {
+    public void draw(Graphics g, Area area, Collection<? extends Line> currentLines) {
         drawAreaBackground(g, area);
 
         for (Edge edge : area.edges()) {
@@ -86,12 +88,13 @@ public class Canvas2D {
         area.holes().forEach(it -> fillPolygon(g, it));
     }
 
-    private void drawCurrentLines(Graphics g, List<Line<Point>> currentLines) {
+    private void drawCurrentLines(Graphics g, Collection<? extends Line> currentLines) {
         if(currentLines == null) { return; }
-        for (int  i=0; i< currentLines.size(); ++i) {
-            var line = currentLines.get(i);
+        var colors = Stream.of(CURRENT_LINE_COLORS).iterator();
+
+        for (var line : currentLines) {
             if(line != null) {
-                g.setColor(CURRENT_LINE_COLORS[i]);
+                g.setColor(colors.next());
                 drawLine(g, line.a, line.b);
             }
         }

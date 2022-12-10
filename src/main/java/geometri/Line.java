@@ -2,20 +2,20 @@ package geometri;
 
 import java.util.Comparator;
 
-public class Line<T extends Point> {
-    public final T a;
-    public final T b;
+public class Line {
+    public final Point a;
+    public final Point b;
     public final double lengthSqrt;
     public final double angleAlfaCCV;
 
-    public Line(T a, T b) {
+    public Line(Point a, Point b) {
         this.a = a;
         this.b = b;
         this.angleAlfaCCV = Angle.alfaAngle(dx(), dy());
         this.lengthSqrt = dx() * dx() + dy() * dy();
     }
 
-    Bound side(T p) {
+    Bound side(Point p) {
         var test = (p.x-a.x) * (b.y - a.y) - (p.y - a.y) * (b.x - a.x);
 
         if(test < -0.001) { return Bound.INSIDE; }
@@ -42,7 +42,7 @@ public class Line<T extends Point> {
     /**
      * https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line_segment
      */
-    public boolean intersect(Line<?> o) {
+    public boolean intersect(Line o) {
         double dx = dx();
         double dy = dy();
         double oDy = o.dy();
@@ -72,23 +72,23 @@ public class Line<T extends Point> {
 
     }
 
-    public boolean inside(Line<?> a, Line<?> b, Line<?> c, Line<?> d) {
+    public boolean inside(Line a, Line b, Line c, Line d) {
         return inside(alfa(), a, b) && inside(alfaInv(), c, d);
     }
 
-    public boolean outside(Line<?> a, Line<?> b, Line<?> c, Line<?> d) {
+    public boolean outside(Line a, Line b, Line c, Line d) {
         return outside(alfa(), a, b) && outside(alfaInv(), c, d);
     }
 
-    public boolean inside(double alfa, Line<?> a, Line<?> b) {
+    public boolean inside(double alfa, Line a, Line b) {
         return Angle.between(alfa, a.alfaInv(), b.alfa());
     }
 
-    public boolean outside(double alfa, Line<?> a, Line<?> b) {
+    public boolean outside(double alfa, Line a, Line b) {
         return Angle.notBetween(alfa, a.alfaInv(), b.alfa());
     }
 
-    public static <S extends Point> Comparator<Line<S>> compareLength() {
+    public static <S extends Point> Comparator<Line> compareLength() {
         return (o1, o2) -> (int)Math.round((o1.lengthSqrt - o2.lengthSqrt) * 100d);
     }
 

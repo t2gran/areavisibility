@@ -60,9 +60,8 @@ public class Point {
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
-        if (!(o instanceof Point)) { return false; }
-        final Point point = (Point) o;
-        return Double.compare(point.x, x) == 0 && Double.compare(point.y, y) == 0;
+        if (!(o instanceof Point otherPoint)) { return false; }
+        return Double.compare(otherPoint.x, x) == 0 && Double.compare(otherPoint.y, y) == 0;
     }
 
     @Override
