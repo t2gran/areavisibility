@@ -2,6 +2,9 @@ package geometri;
 
 import java.util.Objects;
 
+/**
+ * Immutable
+ */
 public class Point {
     public final double x;
     public final double y;
@@ -51,6 +54,9 @@ public class Point {
         return p(x / c, y / c);
     }
 
+    public Point copy() {
+        return this;
+    }
 
     @Override
     public String toString() {

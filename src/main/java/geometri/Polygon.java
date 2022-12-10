@@ -8,7 +8,7 @@ public class Polygon<S extends Point, T extends Line> {
     private final List<T> lines;
 
     public Polygon(List<T> lines) {
-        this.lines = lines;
+        this.lines = List.copyOf(lines);
     }
 
     @SuppressWarnings("unchecked")
@@ -31,5 +31,10 @@ public class Polygon<S extends Point, T extends Line> {
 
     public boolean intersect(T line) {
         return lines.stream().anyMatch(l -> l.intersect(line));
+    }
+
+    @SuppressWarnings("unchecked")
+    public Polygon<S, T> copy() {
+        return new Polygon<S, T>((List<T>) this.lines.stream().map(it -> ((T)it).copy()).toList());
     }
 }

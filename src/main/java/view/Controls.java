@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.*;
+import java.util.function.Consumer;
 
 import static view.CtrlState.FAST_FORWARD;
 import static view.CtrlState.PAUSE;
@@ -23,6 +24,8 @@ public class Controls {
     private final int y0;
     private CtrlState state = CtrlState.PLAY;
 
+    private Consumer<CtrlState> stateChangedSubscriber = null;
+
     Controls(int x0, int y0) {
         this.x0 = x0 - 2*SPACE;
         this.y0 = y0;
@@ -32,20 +35,27 @@ public class Controls {
         return state;
     }
 
-    public CtrlState click(int x, int y) {
-        if(y < y0 || y > y0+HEIGHT ) { return null; }
-        if(x < x0 || x > x0 + 4 * SPACE) { return null; }
+    public void click(int x, int y) {
+        if(y < y0 || y > y0+HEIGHT ) { return; }
+        if(x < x0 || x > x0 + 4 * SPACE) { return; }
 
-        if(x < x0 + SPACE ) { return toggleState(PAUSE); }
-        if(x < x0 + 2 * SPACE ) { return toggleState(CtrlState.PLAY); }
-        if(x < x0 + 3 * SPACE ) { return toggleState(CtrlState.FAST_FORWARD); }
-        if(x < x0 + 4 * SPACE ) { return toggleState(CtrlState.SUPER_FAST_FORWARD); }
-        return null;
+        if(x < x0 + SPACE ) { updateState(PAUSE); }
+        else if(x < x0 + 2 * SPACE ) { updateState(CtrlState.PLAY); }
+        else if(x < x0 + 3 * SPACE ) { updateState(CtrlState.FAST_FORWARD); }
+        else if(x < x0 + 4 * SPACE ) { updateState(CtrlState.SUPER_FAST_FORWARD); }
     }
 
-    private CtrlState toggleState(CtrlState state) {
-        this.state = state;
-        return this.state;
+    public void updateState(CtrlState state) {
+        if(this.state != state) {
+            this.state = state;
+            if(stateChangedSubscriber != null) {
+                stateChangedSubscriber.accept(this.state);
+            }
+        }
+    }
+
+    public void subscribe(Consumer<CtrlState> stateChangedSubscriber) {
+        this.stateChangedSubscriber  =stateChangedSubscriber;
     }
 
     void draw(Graphics g) {

@@ -10,6 +10,11 @@ import java.util.function.Consumer;
 
 public class MergeVLStrategy implements AddVLStrategy {
     @Override
+    public String name() {
+        return "merge";
+    }
+
+    @Override
     public void addVisibilityLines(
             Area area,
             List<Edge> visibilityLines,

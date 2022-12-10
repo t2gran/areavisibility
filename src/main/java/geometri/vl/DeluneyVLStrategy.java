@@ -10,6 +10,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class DeluneyVLStrategy implements AddVLStrategy {
+
+    @Override
+    public String name() {
+        return "deluney";
+    }
+
     @Override
     public void addVisibilityLines(
             Area area,
@@ -20,7 +26,6 @@ public class DeluneyVLStrategy implements AddVLStrategy {
         visibilityLines.sort(Line.compareLength());
 
         for (var it : visibilityLines) {
-            step.accept(it);
             if(noneIntersect(it, acceptedLines)) {
                 acceptedLines.add(it);
                 area.addVisibilityEdge(it.from(), it.to());

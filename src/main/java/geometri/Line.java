@@ -2,6 +2,9 @@ package geometri;
 
 import java.util.Comparator;
 
+/**
+ * Immutable
+ */
 public class Line {
     public final Point a;
     public final Point b;
@@ -106,6 +109,9 @@ public class Line {
         return u0 > v1 || u1 < v0;
     }
 
+    public Line copy() {
+        return this;
+    }
 
     @Override
     public String toString() {

@@ -16,11 +16,11 @@ public class VisibilityLines {
         this.addVLStrategy = addVLStrategy;
     }
 
-    Area area() {
+    public Area area() {
         return area;
     }
 
-    List<Edge> visibilityLines() {
+    public List<Edge> visibilityLines() {
         return visibilityLines;
     }
 

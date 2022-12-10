@@ -7,6 +7,12 @@ public class Node extends Point {
     ArrayList<Edge> edges = new ArrayList<>();
     final boolean fixed;
 
+    private Node(Node other) {
+        super(other.x, other.y);
+        this.edges.addAll(other.edges.stream().map(Edge::copy).toList());
+        this.fixed = other.fixed;
+    }
+
     Node(Point v, boolean fixed) {
         super(v.x, v.y);
         this.fixed = fixed;
@@ -18,6 +24,10 @@ public class Node extends Point {
 
     void connect(Edge edge) {
         edges.add(edge);
+    }
+
+    public Node copy() {
+        return new Node(this);
     }
 
     @Override

@@ -1,75 +1,79 @@
 package view;
 
+import geometri.AddVLStrategy;
 import geometri.Area;
 import geometri.Line;
 import geometri.VisibilityLines;
-import geometri.vl.DeluneyVLStrategy;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class Simulator extends JPanel {
 
     public static final long STEP_DELAY = 1000L;
     public static final long STEP_DELAY_FF = 100L;
     public static final long STEP_SKIP = 1L;
-
-
-    private final Area sample;
-    private final String id;
-    private final VisibilityLines vl;
-    private final List<Line> currentLines = new ArrayList<>();
+    private final String name;
+    private final Area originalSample;
+    private final AddVLStrategy addVlStrategy;
+    private final List<Line> currentLines = Collections.synchronizedList(new ArrayList<>());
     private final Canvas2D canvas = new Canvas2D();
-    private CtrlState ctrl = CtrlState.PLAY;
+    private Area currentSample;
+    private List<? extends Line> vlLines;
     private Thread mainThread;
+    private boolean paused = false;
 
-    public Simulator(String id, Area sample) {
-        this.id = id;
-        this.sample = sample;
-        //var vlStrategy = new AllVLStrategy();
-        var vlStrategy = new DeluneyVLStrategy();
-        this.vl = new VisibilityLines(sample, vlStrategy);
+    public Simulator(Area sample, AddVLStrategy addVlStrategy) {
+        this.name = "Visibility " + sample.name() + " " + addVlStrategy.name();
+        this.addVlStrategy = addVlStrategy;
+        this.originalSample = sample;
     }
 
+    public void run() {
+        setup();
+        //noinspection InfiniteLoopStatement
+        while(true) {
+            currentSample = originalSample.copy();
+            currentLines.clear();
+            var vl = new VisibilityLines(currentSample, addVlStrategy);
+            vlLines = vl.visibilityLines();
 
-    public void run(boolean pauseWhenDone) {
-        ctrl = CtrlState.PLAY;
-        mainThread =  Thread.currentThread();
+            step();
+            vl.generate(this::updateDisplay);
+
+            clearCurrentLines();
+            pauseSimulation();
+            step();
+        }
+    }
+
+    private void setup() {
+        mainThread = Thread.currentThread();
         addMouseListener(new MouseAdapter() {
-          @Override
-          public void mouseReleased(MouseEvent e) {
-            log(e.getX(), e.getY());
-            setControl(canvas.controls.click(e.getX(), e.getY()));
-            super.mouseReleased(e);
-          }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                log(e.getX(), e.getY());
+                canvas.controls.click(e.getX(), e.getY());
+                super.mouseReleased(e);
+            }
         });
-
-        display();
-        step();
-
-        vl.generate(this::updateDisplay);
-
-        // Clear current lines
-        for (int i = 0; i < currentLines.size(); i++) {
-            updateDisplay(null);
-        }
-        if(pauseWhenDone) {
-            setControl(CtrlState.PAUSE);
-            updateDisplay(null);
-        }
-    }
-
-    private void setControl(CtrlState ctrl) {
-        if(ctrl == null || this.ctrl == ctrl) { return; }
-        boolean interrupt = this.ctrl == CtrlState.PAUSE;
-        System.out.println(ctrl);
-        this.ctrl = ctrl;
-
-        if(interrupt) { mainThread.interrupt(); }
+        var frame = new JFrame(name);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Dimension size = Canvas2D.winSize();
+        this.setSize(size);
+        this.setPreferredSize(size);
+        this.setBackground(Canvas2D.BG_COLOR);
+        canvas.setBoundingBox(originalSample.boarder().points());
+        canvas.controls.subscribe(this::ctrlChangedNotification);
+        frame.setContentPane(this);
+        frame.pack();
+        frame.setVisible(true);
     }
 
     @Override
@@ -77,28 +81,26 @@ public class Simulator extends JPanel {
         super.paint(g);
         g.setFont(g.getFont().deriveFont(20.0f));
         g.setColor(new Color(0xD0E0F0));
-        g.drawString(id, 20, 30);
-        canvas.draw(g, sample, currentLines);
-        // canvas.drawCurrentLines(g, currentLines);
-        //canvas.drawVisibilityLines(g, vl);
-        //canvas.drawPolygon(g, sample);
+        g.drawString(name, 20, 30);
+
+        if(simulationDone()) {
+            canvas.drawVLLines(g, currentSample, List.of());
+        }
+        else {
+            canvas.drawVLAndCurrentLines(g, currentSample, vlLines, currentLines);
+        }
     }
 
-    private void display() {
-        var frame = new JFrame("Visibility ");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Dimension size = Canvas2D.winSize();
-        this.setSize(size);
-        this.setPreferredSize(size);
-        this.setBackground(Canvas2D.BG_COLOR);
-        canvas.setBoundingBox(sample.boarder().points());
-        frame.setContentPane(this);
-        frame.pack();
-        frame.setVisible(true);
+    private void clearCurrentLines() {
+        int size = canvas.clSize() + 1;
+        for (var i = 0; i < size; i++) {
+            updateDisplay(null);
+        }
+        repaint();
     }
 
-    private void updateDisplay(Line line) {
-        currentLines.add(0, line);
+    private void updateDisplay(Line currentLine) {
+        currentLines.add(0, currentLine);
         if(currentLines.size() > canvas.clSize()) {
             currentLines.remove(currentLines.size()-1);
         }
@@ -120,11 +122,30 @@ public class Simulator extends JPanel {
     }
 
     private long stepSleepTime() {
-        return switch (ctrl) {
+        return switch (ctrlSate()) {
             case PAUSE -> Integer.MAX_VALUE;
             case FAST_FORWARD -> STEP_DELAY_FF;
             case SUPER_FAST_FORWARD -> STEP_SKIP;
             case PLAY -> STEP_DELAY;
         };
+    }
+
+    private boolean simulationDone() {
+        return currentLines.stream().allMatch(Objects::isNull);
+    }
+
+    private CtrlState ctrlSate() {
+        return canvas.controls.state();
+    }
+    private void pauseSimulation() {
+        canvas.controls.updateState(CtrlState.PAUSE);
+    }
+
+    private void ctrlChangedNotification(CtrlState ctrl) {
+        if(paused) {
+            mainThread.interrupt();
+        }
+        this.paused = (ctrl == CtrlState.PAUSE);
+        repaint();
     }
 }

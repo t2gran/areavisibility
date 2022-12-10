@@ -8,6 +8,11 @@ import java.util.stream.Collectors;
 public class Edge extends Line {
     boolean fixed;
 
+    private Edge(Edge other) {
+        super(other.a, other.b);
+        this.fixed = other.fixed;
+    }
+
     Edge(Node from, Node to, boolean fixed) {
         super(from, to);
         this.fixed = fixed;
@@ -25,6 +30,11 @@ public class Edge extends Line {
 
     public Node to() {
         return (Node)b;
+    }
+
+
+    public Edge copy() {
+        return new Edge(this);
     }
 
     @Override
