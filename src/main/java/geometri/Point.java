@@ -11,44 +11,44 @@ public class Point {
         this.y = y;
     }
 
-    public static Point v2(double x, double y) {
+    public static Point p(double x, double y) {
         return new Point(x,y);
     }
 
     public Point plus(Point l) {
-        return v2(x + l.x, y + l.y);
+        return p(x + l.x, y + l.y);
     }
 
     public Point transform(double c) {
-        return v2(x + c, y + c);
+        return p(x + c, y + c);
     }
 
     public Point minus() {
-        return v2(-x, -y);
+        return p(-x, -y);
     }
 
     public Point minus(Point l) {
-        return v2(x - l.x, y - l.y);
+        return p(x - l.x, y - l.y);
     }
 
     public Point minus(double c) {
-        return v2(x - c, y - c);
+        return p(x - c, y - c);
     }
 
     public Point dot(Point l) {
-        return v2(x * l.x, y * l.y);
+        return p(x * l.x, y * l.y);
     }
 
     public Point scale(double c) {
-        return v2(x * c, y * c);
+        return p(x * c, y * c);
     }
 
     public Point div(Point l) {
-        return v2(x / l.x, y / l.y);
+        return p(x / l.x, y / l.y);
     }
 
     public Point div(double c) {
-        return v2(x / c, y / c);
+        return p(x / c, y / c);
     }
 
 
