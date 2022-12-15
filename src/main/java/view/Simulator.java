@@ -1,55 +1,47 @@
 package view;
 
-import geometri.AddVLStrategy;
+import api.Animation;
+import api.AreaAlgorithm;
 import geometri.Area;
 import geometri.Line;
-import geometri.VisibilityLines;
+import geometri.NodeFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Simulator extends JPanel {
-
-    public static final long STEP_DELAY = 1000L;
-    public static final long STEP_DELAY_FF = 100L;
-    public static final long STEP_SKIP = 1L;
     private final String name;
-    private final Area originalSample;
-    private final AddVLStrategy addVlStrategy;
-    private final List<Line> currentLines = Collections.synchronizedList(new ArrayList<>());
+    private final Area originalArea;
+    private final AreaAlgorithm areaAlgorithm;
+    private final List<Line> currentLines = new CopyOnWriteArrayList<>();
     private final Canvas2D canvas = new Canvas2D();
-    private Area currentSample;
-    private List<? extends Line> vlLines;
+    private Area currentArea;
     private Thread mainThread;
     private boolean paused = false;
 
-    public Simulator(Area sample, AddVLStrategy addVlStrategy) {
-        this.name = "Visibility " + sample.name() + " " + addVlStrategy.name();
-        this.addVlStrategy = addVlStrategy;
-        this.originalSample = sample;
+    public Simulator(Area sample, AreaAlgorithm areaAlgorithm) {
+        this.name = "Visibility " + sample.name() + " " + areaAlgorithm.name();
+        this.areaAlgorithm = areaAlgorithm;
+        this.originalArea = sample;
     }
 
     public void run() {
         setup();
         //noinspection InfiniteLoopStatement
         while(true) {
-            currentSample = originalSample.copy();
+            var animation = animation();
+            currentArea = originalArea.copy(new NodeFactory());
             currentLines.clear();
-            var vl = new VisibilityLines(currentSample, addVlStrategy);
-            vlLines = vl.visibilityLines();
-
-            step();
-            vl.generate(this::updateDisplay);
-
-            clearCurrentLines();
+            animation.startSection();
+            areaAlgorithm.updateArea(currentArea, animation);
+            animation.endSection();
+            currentArea.removeCandidates();
             pauseSimulation();
-            step();
         }
     }
 
@@ -58,8 +50,9 @@ public class Simulator extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                log(e.getX(), e.getY());
-                canvas.controls.click(e.getX(), e.getY());
+                if(!canvas.controls.click(e.getX(), e.getY())) {
+                    log(e.getX(), e.getY());
+                }
                 super.mouseReleased(e);
             }
         });
@@ -69,7 +62,7 @@ public class Simulator extends JPanel {
         this.setSize(size);
         this.setPreferredSize(size);
         this.setBackground(Canvas2D.BG_COLOR);
-        canvas.setBoundingBox(originalSample.boarder().points());
+        canvas.setBoundingBox(originalArea.boarder().points());
         canvas.controls.subscribe(this::ctrlChangedNotification);
         frame.setContentPane(this);
         frame.pack();
@@ -84,16 +77,16 @@ public class Simulator extends JPanel {
         g.drawString(name, 20, 30);
 
         if(simulationDone()) {
-            canvas.drawVLLines(g, currentSample, List.of());
+            canvas.drawVLLines(g, currentArea);
         }
         else {
-            canvas.drawVLAndCurrentLines(g, currentSample, vlLines, currentLines);
+            canvas.drawVLAndCurrentLines(g, currentArea, currentLines);
         }
     }
 
     private void clearCurrentLines() {
         int size = canvas.clSize() + 1;
-        for (var i = 0; i < size; i++) {
+        for (var i = 0; i < size+1; i++) {
             updateDisplay(null);
         }
         repaint();
@@ -112,6 +105,21 @@ public class Simulator extends JPanel {
         System.out.printf("    v2(%d, %4d),%n", canvas.x(viewX), canvas.y(viewY));
     }
 
+    Animation animation() {
+        return new Animation() {
+            @Override public void step(Line line) { updateDisplay(line); }
+            @Override public void startSection() {
+                repaint();
+                Simulator.this.step();
+            }
+            @Override public void endSection() {
+                clearCurrentLines();
+                repaint();
+                pauseSimulation();
+            }
+        };
+    }
+
     private void step() {
         try {
             Thread.sleep(stepSleepTime());
@@ -122,12 +130,7 @@ public class Simulator extends JPanel {
     }
 
     private long stepSleepTime() {
-        return switch (ctrlSate()) {
-            case PAUSE -> Integer.MAX_VALUE;
-            case FAST_FORWARD -> STEP_DELAY_FF;
-            case SUPER_FAST_FORWARD -> STEP_SKIP;
-            case PLAY -> STEP_DELAY;
-        };
+        return ctrlSate().delay();
     }
 
     private boolean simulationDone() {
@@ -139,6 +142,7 @@ public class Simulator extends JPanel {
     }
     private void pauseSimulation() {
         canvas.controls.updateState(CtrlState.PAUSE);
+        step();
     }
 
     private void ctrlChangedNotification(CtrlState ctrl) {

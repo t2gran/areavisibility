@@ -1,8 +1,10 @@
-import geometri.AddVLStrategy;
+import api.AreaAlgorithm;
 import geometri.Area;
-import geometri.vl.AllVLStrategy;
-import geometri.vl.DeluneyVLStrategy;
 import view.Simulator;
+import visibilityline.AddVisibilityLines;
+import visibilityline.DeluneyVLStrategy;
+import visibilityline.MergeAndDeluneyStrategy;
+import visibilityline.MergeVLStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,20 +24,20 @@ import java.util.Locale;
 
 public class Main {
 
-    private static final List<AddVLStrategy> ADD_VL_STRATEGIES = List.of(
-      new AllVLStrategy(), new DeluneyVLStrategy() /*, new MergeVLStrategy()*/
+    private static final List<AreaAlgorithm> ADD_VL_STRATEGIES = List.of(
+      AddVisibilityLines.of(), DeluneyVLStrategy.of(), MergeVLStrategy.of(), MergeAndDeluneyStrategy.of()
     );
 
 
     public static void main(String[] args) {
         Locale.setDefault(Locale.CANADA);
 
-        var vlStrategies = new ArrayList<AddVLStrategy>();
+        var vlStrategies = new ArrayList<AreaAlgorithm>();
         var areas = new ArrayList<Area>();
 
         for (String arg : args) {
-            for (AddVLStrategy it : ADD_VL_STRATEGIES) {
-                if (it.name().equalsIgnoreCase(arg)) {
+            for (AreaAlgorithm it : ADD_VL_STRATEGIES) {
+                if (it.id().equalsIgnoreCase(arg)) {
                     vlStrategies.add(it);
                 }
             }
@@ -60,7 +62,7 @@ public class Main {
         }
     }
 
-    private static void run(Area area, AddVLStrategy vlStrategy) {
+    private static void run(Area area, AreaAlgorithm vlStrategy) {
         new Thread(area.name() + " " + vlStrategy.name()) {
             @Override
             public void run() {

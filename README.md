@@ -18,7 +18,7 @@ Run [Main](src/main/java/Main.java). To switch algorithm change the [main at lin
 ### All visibility lines
 This just add all visibility lines - this is very simple, but create to many lines and dificult to debug visually.  
 
- - [AllVLStrategy](src/main/java/geometri/vl/AllVLStrategy.java)
+ - [AllVLStrategy](src/main/java/visibilityline/AllVLStrategy.java)
 
 
 ### Delaunay  lines
@@ -28,7 +28,7 @@ This strategy is similar to the [Delaunay triangulation](https://en.wikipedia.or
 When all visibility lines are computed, the algorithm sort them in increasing length order and add them one by one
 if they not intersect with one of the existing added visibility lines.
 
-- [DeluneyVLStrategy](src/main/java/geometri/vl/DeluneyVLStrategy.java)
+- [DeluneyVLStrategy](src/main/java/visibilityline/DeluneyVLStrategy.java)
 
 #### Improvments
 

@@ -1,40 +1,37 @@
 package geometri;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.ToIntFunction;
-import java.util.stream.Collectors;
 
-public class Polygon<S extends Point, T extends Line> {
-    private final List<T> lines;
+public class Polygon {
+    private final List<Edge> edges;
 
-    public Polygon(List<T> lines) {
-        this.lines = List.copyOf(lines);
+    public Polygon(Collection<Edge> edges) {
+        this.edges = List.copyOf(edges);
     }
 
-    @SuppressWarnings("unchecked")
-    public int[] coordinates(ToIntFunction<S> map) {
-        return lines.stream().mapToInt(l ->  map.applyAsInt((S)l.a)).toArray();
+    public int[] coordinates(ToIntFunction<Point> map) {
+        return edges.stream().mapToInt(l ->  map.applyAsInt(l.a)).toArray();
     }
 
-    @SuppressWarnings("unchecked")
-    public List<S> points() {
-        return lines.stream().map(l -> (S)l.a).collect(Collectors.toList());
+    public List<Node> points() {
+        return edges.stream().map(Edge::from).toList();
     }
 
-    public List<T> boarderLines() {
-        return lines;
+    public List<Edge> boarderLines() {
+        return edges;
     }
 
     public int size() {
-        return lines.size();
+        return edges.size();
     }
 
-    public boolean intersect(T line) {
-        return lines.stream().anyMatch(l -> l.intersect(line));
+    public boolean intersect(Edge line) {
+        return edges.stream().anyMatch(l -> l.intersect(line));
     }
 
-    @SuppressWarnings("unchecked")
-    public Polygon<S, T> copy() {
-        return new Polygon<S, T>((List<T>) this.lines.stream().map(it -> ((T)it).copy()).toList());
+    public Polygon copy(NodeFactory nodeFactory) {
+        return new Polygon(edges.stream().map(e -> e.copyFixed(nodeFactory)).toList());
     }
 }

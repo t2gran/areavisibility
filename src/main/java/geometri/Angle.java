@@ -31,7 +31,7 @@ public class Angle {
      * used to compare two angles. The advantage of the angle is that only one division is used to
      * compute it, no sin(), cos() or tan() function is needed.
      * <p>
-     * The 0 point is -45, not 0° - this is again an optimization to avoid one comparison.
+     * The 0 point is dx>0 and dy=0 (270°/-90°, not 0°) - this is again an optimization to avoid one comparison.
      */
     static double alfaAngle(double dx, double dy) {
         if(dy >= 0.0) {
@@ -64,5 +64,13 @@ public class Angle {
     static boolean notBetween(double a, double a0, double a1) {
         if(a0 > a1) { return a >= a0 || a <= a1; }
         else { return a >= a0 && a <= a1; }
+    }
+
+    /**
+     * The line is closer to a horizontal line than beeing vertical.
+     * The line is flat if {@code alfaCCV} is (0°..°45) or (135°..225°) or (315°..360°)
+     */
+    public static boolean isFlat(double alfaCCV) {
+        return alfaCCV < 1d || (alfaCCV > 3d && alfaCCV < 5d) || alfaCCV > 7d;
     }
 }

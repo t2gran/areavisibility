@@ -9,24 +9,29 @@ import geometri.Polygon;
 
 import java.awt.*;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class Canvas2D {
 
   public static final Color BG_COLOR = new Color(0x404040);
-  public static final Color BG_POLYGON = new Color(0xB0B0B0);
-  public static final Color HOLES_COLOR = new Color(0x606060);
-  private static final Color MAIN_LINE_COLOR = new Color(0x40A0FF);
-  private static final Color VL_COLOR_DONE = new Color(0xff2020);
-  private static final Color VL_COLOR_TEMP = new Color(0xA0A0A0);
-  private static final Color NODE_COLOR_FIXED = new Color(0xff6060);
+  public static final Color BG_POLYGON = new Color(0xC0C0C0);
+  public static final Color HOLES_COLOR = new Color(0x509050);
+
+  private static final Color LINE_COLOR_FIXED = new Color(0x40A0FF);
+  private static final Color LINE_COLOR_ACCEPTED = new Color(0xff0000);
+  private static final Color LINE_COLOR_CANDIDATE = new Color(0xA0A0A0);
+  private static final Color LINE_COLOR_DISCONNECTED = new Color(0xE0E060);
+  private static final Color NODE_COLOR_FIXED = new Color(0xffa060);
+  private static final Color NODE_COLOR_EXTRA= new Color(0xffe020);
   private static final Color NODE_COLOR_TEMP = new Color(0x20e040);
   private static final Color[] CURRENT_LINE_COLORS = {
     new Color(0xFF00FFFF, true),
-    new Color(0x8000FFFF, true),
-    new Color(0x5000FFFF, true),
-    new Color(0x2000FFFF, true)
+    new Color(0x4000FFFF, true),
+    new Color(0x2000FFFF, true),
+    new Color(0x1000FFFF, true),
+    new Color(0x0500FFFF, true)
   };
 
   private static final int POINT_SIZE = 8;
@@ -55,7 +60,13 @@ public class Canvas2D {
     g.fillOval(x(point) - POINT_RADIUS, y(point) - POINT_RADIUS, POINT_SIZE, POINT_SIZE);
   }
 
-  public void drawLine(Graphics g, Line line) {
+  public void drawLine(Graphics g, Edge line) {
+    g.setColor(switch (line.status()){
+      case FIXED -> LINE_COLOR_FIXED;
+      case ACCEPTED -> LINE_COLOR_ACCEPTED;
+      case CANDIDATE -> LINE_COLOR_CANDIDATE;
+      case DISCONNECTED -> LINE_COLOR_DISCONNECTED;
+    });
     drawLine(g, line.a, line.b);
   }
 
@@ -64,13 +75,13 @@ public class Canvas2D {
   }
 
 
-  public void drawVLLines(Graphics g, Area area, Collection<? extends Line> vlLines) {
-    draw(g, area, vlLines, null);
+  public void drawVLLines(Graphics g, Area area) {
+    draw(g, area, List.of());
   }
 
 
-  public void drawVLAndCurrentLines(Graphics g, Area area, Collection<? extends Line> vlLines, Collection<? extends Line> currentLines) {
-    draw(g, area, vlLines, currentLines);
+  public void drawVLAndCurrentLines(Graphics g, Area area, Collection<? extends Line> currentLines) {
+    draw(g, area, currentLines);
   }
 
   public void drawAreaBackground(Graphics g, Area area) {
@@ -81,49 +92,50 @@ public class Canvas2D {
   }
 
 
-  private void draw(Graphics g, Area area, Collection<? extends Line> vlLines, Collection<? extends Line> currentLines) {
+  private void draw(Graphics g, Area area, Collection<? extends Line> currentLines) {
     drawAreaBackground(g, area);
 
+    Collection<Edge> paths = area.paths();
+    var visitedNodes = new HashSet<Node>();
+    g.setColor(LINE_COLOR_FIXED);
+    for (Edge edge : paths) {
+      drawLine(g, edge);
+      if(!visitedNodes.add(edge.from())) {
+        drawPoint(g, edge.from());
+      }
+      if(!visitedNodes.add(edge.to())) {
+        drawPoint(g, edge.to());
+      }
+    }
+
     for (Edge edge : area.edges()) {
-      g.setColor(edge.fixed() ? MAIN_LINE_COLOR : VL_COLOR_DONE);
       drawLine(g, edge);
     }
-
-    g.setColor(VL_COLOR_DONE);
-    for (Edge edge : area.paths()) {
-      drawLine(g, edge);
-    }
-
-    if(currentLines == null) {
-      drawVLLines(g, VL_COLOR_DONE, vlLines);
-    }
-    else {
-      drawVLLines(g, VL_COLOR_TEMP, vlLines);
-      drawCurrentLines(g, currentLines);
-    }
+    drawCurrentLines(g, currentLines);
 
     for (Node node : area.nodes()) {
       g.setColor(node.fixed() ? NODE_COLOR_FIXED : NODE_COLOR_TEMP);
+      drawPoint(g, node);
+    }
+    for (Node node : area.extraPoints()) {
+      g.setColor(NODE_COLOR_EXTRA);
       drawPoint(g, node);
     }
     controls.draw(g);
   }
 
 
-  private void drawVLLines(Graphics g, Color c, Collection<? extends Line> vlLines) {
+  private void drawVLLines(Graphics g,Collection<Edge> vlLines) {
     if (vlLines == null) {
       return;
     }
-    g.setColor(c);
     for (var line : vlLines) {
-      if (line != null) {
-        drawLine(g, line.a, line.b);
-      }
+        drawLine(g, line);
     }
   }
 
   private void drawCurrentLines(Graphics g, Collection<? extends Line> currentLines) {
-    if (currentLines == null || currentLines.isEmpty()) {
+    if (currentLines.isEmpty()) {
       return;
     }
     var colors = Stream.of(CURRENT_LINE_COLORS).iterator();
@@ -136,7 +148,7 @@ public class Canvas2D {
   }
 
 
-  private void fillPolygon(Graphics g, Polygon<?, ?> polygon) {
+  private void fillPolygon(Graphics g, Polygon polygon) {
     g.fillPolygon(polygon.coordinates(this::x), polygon.coordinates(this::y), polygon.size());
   }
 

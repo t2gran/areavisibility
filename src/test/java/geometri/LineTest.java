@@ -2,8 +2,6 @@ package geometri;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
-
 import static geometri.Point.p;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -24,8 +22,8 @@ class LineTest {
         // Lines witch sheer one node, should not intersect
         var l1 = new Line(p(0, 0), p(60, 15));
         var l2 = new Line(p(45, 30), p(38, 20));
-        assertEquals(Optional.empty(), l1.intersectionPoint(l2));
-        assertEquals(Optional.empty(), l2.intersectionPoint(l1));
+        assertTrue(l1.intersectionPoint(l2).notIntersect());
+        assertTrue(l2.intersectionPoint(l1).notIntersect());
         assertFalse(l1.intersect(l2));
         assertFalse(l2.intersect(l1));
     }
@@ -34,8 +32,8 @@ class LineTest {
     void intersectInTheMiddle() {
         var l1 = new Line(p(1, 1), p(2, 2));
         var l2 = new Line(p(1, 2), p(2, 1));
-        assertEquals(Optional.of(p(1.5, 1.5)), l1.intersectionPoint(l2));
-        assertEquals(Optional.of(p(1.5, 1.5)), l2.intersectionPoint(l1));
+        assertEquals(p(1.5, 1.5), l1.intersectionPoint(l2).point());
+        assertEquals(p(1.5, 1.5), l2.intersectionPoint(l1).point());
         assertTrue(l1.intersect(l2));
         assertTrue(l2.intersect(l1));
     }
@@ -46,8 +44,8 @@ class LineTest {
         // but lines are extended
         var l1 = new Line(p(-3, -2), p(3, 4));
         var l2 = new Line(p(0, 4), p(4, 0));
-        assertEquals(Optional.of(p(1.5, 2.5)), l1.intersectionPoint(l2));
-        assertEquals(Optional.of(p(1.5, 2.5)), l2.intersectionPoint(l1));
+        assertEquals(p(1.5, 2.5), l1.intersectionPoint(l2).point());
+        assertEquals(p(1.5, 2.5), l2.intersectionPoint(l1).point());
     }
 
     @Test
@@ -62,8 +60,8 @@ class LineTest {
         // (2, 2) is in the middle of line l1
         var l1 = new Line(p(1, 1), p(3, 3));
         var l2 = new Line(p(2, 2), p(3, 2));
-        assertEquals(Optional.of(p(2,2)), l1.intersectionPoint(l2));
-        assertEquals(Optional.of(p(2,2)), l2.intersectionPoint(l1));
+        assertEquals(p(2,2), l1.intersectionPoint(l2).point());
+        assertEquals(p(2,2), l2.intersectionPoint(l1).point());
     }
     @Test
     void linesWhereOneEndIsOnTheExtensionOfTheOtherDoNotIntersect() {

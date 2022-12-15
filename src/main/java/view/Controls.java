@@ -35,14 +35,16 @@ public class Controls {
         return state;
     }
 
-    public void click(int x, int y) {
-        if(y < y0 || y > y0+HEIGHT ) { return; }
-        if(x < x0 || x > x0 + 4 * SPACE) { return; }
+    public boolean click(int x, int y) {
+        if(y < y0 || y > y0+HEIGHT ) { return false; }
+        if(x < x0 || x > x0 + 4 * SPACE) { return false; }
 
         if(x < x0 + SPACE ) { updateState(PAUSE); }
         else if(x < x0 + 2 * SPACE ) { updateState(CtrlState.PLAY); }
         else if(x < x0 + 3 * SPACE ) { updateState(CtrlState.FAST_FORWARD); }
         else if(x < x0 + 4 * SPACE ) { updateState(CtrlState.SUPER_FAST_FORWARD); }
+        else { return false; }
+        return true;
     }
 
     public void updateState(CtrlState state) {
